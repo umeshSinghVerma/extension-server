@@ -6,6 +6,10 @@ const port = 8080;
 
 app.use(express.json());
 
+app.get('/',(req,res)=>{
+    res.send("Hello I am up");
+})
+
 app.post('/getPlayListVideoList', async (req, res) => {
     try {
         const body = req.body;
