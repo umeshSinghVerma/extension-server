@@ -38,10 +38,11 @@ app.listen(port, () => {
 async function getPlaylistVideos(playlistId) {
     try {
         const playlist = await youtube.getPlaylist(playlistId);
+        console.log(playlist);
         const data = playlist.videos.items.map(videoData => {
             return videoData.id
         })
-        return data;
+        return {videoIds:data,playlistTitle:playlist.title};
     } catch (e) {
         console.log(e);
         return [];
