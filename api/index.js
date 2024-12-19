@@ -1,17 +1,19 @@
-import express from "express";
 import { YoutubeTranscript } from "youtube-transcript";
 import cors from "cors";
 import { Client } from "youtubei";
+import express from "express";
 
-const youtube = new Client();
 const app = express();
-const port = process.env.PORT || 8080;
+const youtube = new Client();
 
-app.use(cors());
+app.use(cors({
+    origin: '*', // Update to specific origins for better security in production
+    methods: ['GET', 'POST'],
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send("Hello, I am up");
+    res.send("Hello, I am up and running on Vercel!");
 });
 
 app.post('/getPlayListVideoList', async (req, res) => {
@@ -21,7 +23,7 @@ app.post('/getPlayListVideoList', async (req, res) => {
             return res.status(400).send({ error: "Playlist ID is required." });
         }
         const data = await getPlaylistVideos(playListId);
-        res.send(data);
+        res.status(200).send(data);
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: "Failed to fetch playlist videos." });
@@ -35,7 +37,7 @@ app.post('/getSubtitles', async (req, res) => {
             return res.status(400).send({ error: "Video ID is required." });
         }
         const data = await getSubTitles(videoId);
-        res.send(data);
+        res.status(200).send(data);
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: error.message });
@@ -49,15 +51,11 @@ app.post('/getSearchResults', async (req, res) => {
             return res.status(400).send({ error: "Search query is required." });
         }
         const data = await getSearchResults(query);
-        res.send(data);
+        res.status(200).send(data);
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: "Failed to fetch search results." });
     }
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
 });
 
 async function getPlaylistVideos(playlistId) {
@@ -86,7 +84,7 @@ async function getSearchResults(searchQuery) {
     }
 }
 
-export async function getSubTitles(videoId) {
+async function getSubTitles(videoId) {
     try {
         const transcript = await YoutubeTranscript.fetchTranscript(videoId);
         const text = transcript.map(ele => ele.text).join(" ");
@@ -96,3 +94,6 @@ export async function getSubTitles(videoId) {
         throw new Error('Captions cannot be generated for this video.');
     }
 }
+
+// Export the handler for Vercel
+export default app;
